@@ -19,6 +19,8 @@
         Const Ser_Con = "SER!0!"
         Const Ser_Dis = "SER!1!"
         Const BLE_Dis = "BLE!0!"
+        Const HET_Str = "HET!1!"
+        Const HET_End = "HET!0!"
         Const Get_Meas = "gM/"
     End Structure
 

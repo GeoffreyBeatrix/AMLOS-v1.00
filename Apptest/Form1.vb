@@ -38,8 +38,7 @@ Public Class Form1
         Else
 
             Disconnecting()
-            LabelCOMError.Text = "Not connected"
-            LabelCOMError.ForeColor = SystemColors.ControlText
+
         End If
 
     End Sub
@@ -179,6 +178,7 @@ Public Class Form1
         For Each Ctl As Control In Me.Controls
             Dim Indicator As Integer = Ctl.Name.IndexOf("Indicator")
             If TypeOf Ctl Is Button And (Ctl.Name <> "ButtonConnect" And Ctl.Name <> "ButtonRefresh") Then Ctl.Enabled = False
+            If TypeOf Ctl Is Button And Ctl.Name = "ButtonRefresh" Then Ctl.Enabled = True
             If TypeOf Ctl Is Button And Indicator <> -1 Then Ctl.BackColor = SystemColors.GrayText
             If TypeOf Ctl Is NumericUpDown Then Ctl.Enabled = False
             If TypeOf Ctl Is ComboBox Then Ctl.Enabled = True
@@ -209,13 +209,17 @@ Public Class Form1
         Next
     End Sub
     Private Sub Disconnecting()
-        If CheckBoxHeating.Checked Then
-            MsgBox("Stop heating before disconnecting")
-            Exit Sub
-        End If
+
+        SerialPortClass.SendData(ConstClass.CmdListing.HET_End)
+        Threading.Thread.Sleep(100)
+        Timer2.Enabled = False
+        IndicatorHET.BackColor = SystemColors.GrayText
+        CheckBoxHeating.Checked = False
+
         For Each Ctl As Control In Me.Controls
             Dim Indicator As Integer = Ctl.Name.IndexOf("Indicator")
             If TypeOf Ctl Is Button And (Ctl.Name <> "ButtonConnect" And Ctl.Name <> "ButtonRefresh") Then Ctl.Enabled = False
+            If TypeOf Ctl Is Button And Ctl.Name = "ButtonRefresh" Then Ctl.Enabled = True
             If TypeOf Ctl Is Button And Indicator <> -1 Then Ctl.BackColor = SystemColors.GrayText
             If TypeOf Ctl Is NumericUpDown Then Ctl.Enabled = False
             If TypeOf Ctl Is ComboBox Then Ctl.Enabled = True
@@ -226,8 +230,14 @@ Public Class Form1
         SerialPortClass.SendData(ConstClass.CmdListing.Ser_Dis)
         SerialPort1.Close()
         Timer1.Enabled = False
+
         ButtonConnect.Text = "Connect"
         SerialPortClass.RefreshCOMPortList()
+        If LabelCOMError.ForeColor <> Color.Red Then
+            LabelCOMError.Text = "Not connected"
+            LabelCOMError.ForeColor = SystemColors.ControlText
+        End If
+
     End Sub
     Private Sub WriteResult()
 
@@ -322,7 +332,7 @@ Public Class Form1
 
     Private Sub CheckBoxHeating_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxHeating.CheckedChanged
         If (CheckBoxHeating.Checked) Then
-            Dim ErrorRtrn As String = SerialPortClass.SendData("HET!1!")
+            Dim ErrorRtrn As String = SerialPortClass.SendData(ConstClass.CmdListing.HET_Str)
             If ErrorRtrn <> ConstClass.ErrorListing.Error_null Then
                 LabelCOMError.Text = ErrorRtrn
                 LabelCOMError.ForeColor = Color.Red
@@ -330,7 +340,7 @@ Public Class Form1
                 Exit Sub
             End If
         Else
-            Dim ErrorRtrn As String = SerialPortClass.SendData("HET!0!")
+            Dim ErrorRtrn As String = SerialPortClass.SendData(ConstClass.CmdListing.HET_End)
             If ErrorRtrn <> ConstClass.ErrorListing.Error_null Then
                 LabelCOMError.Text = ErrorRtrn
                 LabelCOMError.ForeColor = Color.Red

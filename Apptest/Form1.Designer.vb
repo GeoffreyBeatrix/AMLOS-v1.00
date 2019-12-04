@@ -168,7 +168,6 @@ Partial Class Form1
         Me.ButtonReload.TabIndex = 74
         Me.ButtonReload.Text = "Reload Config File"
         Me.ButtonReload.UseVisualStyleBackColor = True
-        Me.ButtonReload.Visible = False
         '
         'ShapeContainer1
         '
